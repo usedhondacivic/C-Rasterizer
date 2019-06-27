@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build Main",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "Main.cpp",
+                "-ID:/Projects/C++/mingw_dev_lib/SDL2-2.0.9/x86_64-w64-mingw32/include",
+                "-LD:/Projects/C++/mingw_dev_lib/SDL2-2.0.9/x86_64-w64-mingw32/lib",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-o",
+                "Main",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
