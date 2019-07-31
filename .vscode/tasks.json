@@ -7,11 +7,20 @@
             "command": "g++",
             "args": [
                 "-g",
+                "source/Main.cpp",
+                "-I../mingw_dev_lib/include",
+                "-L../mingw_dev_lib/lib",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-lSDL2_image",
                 "-o",
-                "Main.exe",
-                "Main.cpp",
+                "binaries/Main",
             ],
-            "group": "build"
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
             "label": "Build with Clang",
@@ -20,15 +29,12 @@
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
-                "Main.cpp",
+                "source/Main.cpp",
                 "-o",
-                "Main.out",
+                "binaries/Main.out",
                 "--debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         }
     ]
 }

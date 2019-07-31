@@ -2,6 +2,10 @@
     "configurations": [
         {
             "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "../mingw_dev_lib/include"
+            ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
