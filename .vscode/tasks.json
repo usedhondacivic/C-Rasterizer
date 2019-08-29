@@ -8,6 +8,7 @@
             "args": [
                 "-g",
                 "source/Main.cpp",
+                "source/Engine3D.cpp",
                 "-I../mingw_dev_lib/include",
                 "-L../mingw_dev_lib/lib",
                 "-lmingw32",

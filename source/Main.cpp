@@ -5,9 +5,7 @@
 
 #include "Engine3D.h"
 #include "Main.h"
-
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+#include "Constants.h"
 
 bool init();
 
@@ -32,7 +30,7 @@ bool init(){
             std::cout << "Warning: Linear texture filtering not enabled!";
         }
 
-        gWindow = SDL_CreateWindow("Rasterizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        gWindow = SDL_CreateWindow("Rasterizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, constants::SCREEN_WIDTH, constants::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if(gWindow == NULL){
             std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << "\n";
             success = false;
