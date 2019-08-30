@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 #include "Engine3D.h"
 #include "Main.h"
@@ -9,7 +10,7 @@
 
 struct vec3d
 {
-    float x, y, z;
+    double x, y, z;
 };
 
 struct triangle
@@ -24,10 +25,11 @@ struct mesh
 
 struct matrix4x4
 {
-    float m[4][4] = {0};
+    double m[4][4] = {0};
 };
 
 mesh cubeMesh;
+matrix4x4 projectionMatrix;
 
 void setup(){
     cubeMesh.triangles = {
@@ -56,10 +58,16 @@ void setup(){
         {0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f},
     };
 
+    //Projection Matrix
     float fNear = 0.1f; 
     float fFar = 1000.0f;
     float fFov = 90.0f;
     float fAspectRatio = (float)constants::SCREEN_HEIGHT / (float)constants::SCREEN_WIDTH;
+    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * M_PI);
+
+    projectionMatrix.m[0][0] = fAspectRatio * fFovRad;
+    projectionMatrix.m[1][1] = fFovRad;
+    projectionMatrix.m[2][2] = fFar / (fFar - fNear);
 }
 
 void update(){
