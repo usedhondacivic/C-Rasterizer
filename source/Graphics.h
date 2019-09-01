@@ -1,3 +1,5 @@
 #pragma once
 
-void drawTriangle();
+#include "Engine3D.h"
+
+void drawTriangle(triangle &tri);

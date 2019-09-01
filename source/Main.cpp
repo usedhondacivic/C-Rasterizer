@@ -94,20 +94,24 @@ int main(int argc, char* args[]){
         if(!loadMedia()){
             std::cout << "Failed to load media!" << "\n";
         }else{
-            bool quit = false;
+            if(!setup()){
+                std::cout << "Failed to setup!" << "\n";
+            }else{
+                bool quit = false;
 
-            SDL_Event e;
+                SDL_Event e;
 
-            while(!quit){
-                while(SDL_PollEvent(&e) != 0){
-                    if(e.type == SDL_QUIT){
-                        quit = true;
-                    }else if(e.type == SDL_KEYDOWN){
-                        
+                while(!quit){
+                    while(SDL_PollEvent(&e) != 0){
+                        if(e.type == SDL_QUIT){
+                            quit = true;
+                        }else if(e.type == SDL_KEYDOWN){
+                            
+                        }
                     }
-                }
 
-                update();
+                    update();
+                }
             }
         }
     }

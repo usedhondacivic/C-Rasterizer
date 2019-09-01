@@ -1,7 +1,15 @@
 #pragma once
 
-struct triangle;
+struct vec3d
+{
+    float x, y, z;
+};
 
-void setup();
+struct triangle
+{
+    vec3d points[3];
+};
+
+bool setup();
 
 void update();
