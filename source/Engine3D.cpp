@@ -24,8 +24,12 @@ auto tp1 = std::chrono::system_clock::now();
 auto tp2 = std::chrono::system_clock::now();
 
 mesh cubeMesh;
+
+vec3d vCamera;
+
 matrix4x4 projectionMatrix;
 matrix4x4 rotationMatrixX, rotationMatrixZ;
+
 float fTheta;
 
 void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
@@ -90,11 +94,11 @@ void update(){
     tp1 = tp2;
     float fElapsedTime = elapsedTime.count();
 
-    fTheta += 1.0f *fElapsedTime;
+    fTheta += 1.0f * fElapsedTime;
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(gRenderer);
-    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );
+    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x0, 0xFF);
 
     //X rotation matrix
     rotationMatrixZ.m[0][0] = cosf(fTheta);
@@ -128,19 +132,43 @@ void update(){
         triTranslated.points[1].z = triRotatedZX.points[1].z + 3.0f;
         triTranslated.points[2].z = triRotatedZX.points[2].z + 3.0f;
 
-        MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
-        MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
-        MultiplyMatrixVector(triTranslated.points[2], triProjected.points[2], projectionMatrix);
+        vec3d normal, line1, line2;
 
-        triProjected.points[0].x += 1.0f; triProjected.points[0].y += 1.0f;
-        triProjected.points[1].x += 1.0f; triProjected.points[1].y += 1.0f;
-        triProjected.points[2].x += 1.0f; triProjected.points[2].y += 1.0f;
+        line1.x = triTranslated.points[1].x - triTranslated.points[0].x;
+        line1.y = triTranslated.points[1].y - triTranslated.points[0].y;
+        line1.z = triTranslated.points[1].z - triTranslated.points[0].z;
 
-        triProjected.points[0].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[0].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
-        triProjected.points[1].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[1].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
-        triProjected.points[2].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[2].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+        line2.x = triTranslated.points[2].x - triTranslated.points[0].x;
+        line2.y = triTranslated.points[2].y - triTranslated.points[0].y;
+        line2.z = triTranslated.points[2].z - triTranslated.points[0].z;
 
-        drawTriangle(triProjected);
+        normal.x = line1.y * line2.z - line1.z * line2.y;
+        normal.y = line1.z * line2.x - line1.x * line2.z;
+        normal.z = line1.x * line2.y - line1.y * line2.x;
+
+        float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+        normal.x /= length; normal.y /= length; normal.z /= length;
+
+        //if(normal.z < 0){
+        if(
+            normal.x * (triTranslated.points[0].x - vCamera.x) + 
+            normal.y * (triTranslated.points[0].y - vCamera.y) + 
+            normal.z * (triTranslated.points[0].z - vCamera.z) < 0
+        ){
+            MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
+            MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
+            MultiplyMatrixVector(triTranslated.points[2], triProjected.points[2], projectionMatrix);
+
+            triProjected.points[0].x += 1.0f; triProjected.points[0].y += 1.0f;
+            triProjected.points[1].x += 1.0f; triProjected.points[1].y += 1.0f;
+            triProjected.points[2].x += 1.0f; triProjected.points[2].y += 1.0f;
+
+            triProjected.points[0].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[0].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+            triProjected.points[1].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[1].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+            triProjected.points[2].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[2].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+
+            drawTriangle(triProjected);
+        }
     }
 
     SDL_RenderPresent(gRenderer);
