@@ -25,7 +25,7 @@ auto tp2 = std::chrono::system_clock::now();
 
 mesh cubeMesh;
 matrix4x4 projectionMatrix;
-matrix4x4 rotationMatrixX, rotationMatrixz;
+matrix4x4 rotationMatrixX, rotationMatrixZ;
 float fTheta;
 
 void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
@@ -81,6 +81,21 @@ bool setup(){
     projectionMatrix.m[2][3] = 1.0f;
     projectionMatrix.m[3][3] = 0.0f;
 
+    return true;
+}
+
+void update(){
+    tp2 = std::chrono::system_clock::now();
+    std::chrono::duration<float> elapsedTime = tp2 - tp1;
+    tp1 = tp2;
+    float fElapsedTime = elapsedTime.count();
+
+    fTheta += 1.0f *fElapsedTime;
+
+    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderClear(gRenderer);
+    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );
+
     //X rotation matrix
     rotationMatrixZ.m[0][0] = cosf(fTheta);
     rotationMatrixZ.m[0][1] = sinf(fTheta);
@@ -97,28 +112,21 @@ bool setup(){
     rotationMatrixX.m[2][2] = cosf(fTheta * 0.5f);
     rotationMatrixX.m[3][3] = 1;
 
-    return true;
-}
-
-void update(){
-    tp2 = std::chrono::system_clock::now();
-    std::chrono::duration<float> elapsedTime = tp2 - tp1;
-    tp1 = tp2;
-    float fElapsedTime = elapsedTime.count();
-
-    fTheta += 1.0f *fElapsedTime;
-
-    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    SDL_RenderClear(gRenderer);
-    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );
-
     for(auto tri : cubeMesh.triangles){
-        triangle triProjected, triTranslated;
+        triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 
-        triTranslated = tri;
-        triTranslated.points[0].z = tri.points[0].z + 3.0f;
-        triTranslated.points[1].z = tri.points[1].z + 3.0f;
-        triTranslated.points[2].z = tri.points[2].z + 3.0f;
+        MultiplyMatrixVector(tri.points[0], triRotatedZ.points[0], rotationMatrixZ);
+        MultiplyMatrixVector(tri.points[1], triRotatedZ.points[1], rotationMatrixZ);
+        MultiplyMatrixVector(tri.points[2], triRotatedZ.points[2], rotationMatrixZ);
+        
+        MultiplyMatrixVector(triRotatedZ.points[0], triRotatedZX.points[0], rotationMatrixX);
+        MultiplyMatrixVector(triRotatedZ.points[1], triRotatedZX.points[1], rotationMatrixX);
+        MultiplyMatrixVector(triRotatedZ.points[2], triRotatedZX.points[2], rotationMatrixX);
+
+        triTranslated = triRotatedZX;
+        triTranslated.points[0].z = triRotatedZX.points[0].z + 3.0f;
+        triTranslated.points[1].z = triRotatedZX.points[1].z + 3.0f;
+        triTranslated.points[2].z = triRotatedZX.points[2].z + 3.0f;
 
         MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
         MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
