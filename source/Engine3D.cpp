@@ -44,6 +44,11 @@ void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
     }
 }
 
+vec3d GetColor(float &dot){
+    vec3d color = {(dot + 1.0f) * 127.5f, (dot + 1.0f) * 127.5f, (dot + 1.0f) * 127.5f};
+    return color;
+}
+
 bool setup(){
     cubeMesh.triangles = {
         //South
@@ -96,9 +101,9 @@ void update(){
 
     fTheta += 1.0f * fElapsedTime;
 
-    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
     SDL_RenderClear(gRenderer);
-    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x0, 0xFF);
+    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255);
 
     //X rotation matrix
     rotationMatrixZ.m[0][0] = cosf(fTheta);
@@ -149,12 +154,19 @@ void update(){
         float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
         normal.x /= length; normal.y /= length; normal.z /= length;
 
-        //if(normal.z < 0){
         if(
             normal.x * (triTranslated.points[0].x - vCamera.x) + 
             normal.y * (triTranslated.points[0].y - vCamera.y) + 
             normal.z * (triTranslated.points[0].z - vCamera.z) < 0
         ){
+            vec3d lightDirection = {0.0f, 0.0f, -1.0f};
+            float length = sqrtf(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
+            lightDirection.x /= length; lightDirection.y /= length; lightDirection.z /= length;
+
+            float dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
+
+            triTranslated.color = GetColor(dot);
+
             MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
             MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
             MultiplyMatrixVector(triTranslated.points[2], triProjected.points[2], projectionMatrix);
@@ -166,6 +178,8 @@ void update(){
             triProjected.points[0].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[0].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
             triProjected.points[1].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[1].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
             triProjected.points[2].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[2].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+            
+            SDL_SetRenderDrawColor( gRenderer, triTranslated.color.x, triTranslated.color.y, triTranslated.color.z, 255);
 
             drawTriangle(triProjected);
         }
