@@ -181,7 +181,7 @@ void update(){
             
             SDL_SetRenderDrawColor( gRenderer, triTranslated.color.x, triTranslated.color.y, triTranslated.color.z, 255);
 
-            drawTriangle(triProjected);
+            drawTriangle(triProjected, triTranslated.color);
         }
     }
 
