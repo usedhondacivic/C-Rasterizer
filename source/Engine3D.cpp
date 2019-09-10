@@ -101,9 +101,8 @@ void update(){
 
     fTheta += 1.0f * fElapsedTime;
 
-    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
-    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255);
 
     //X rotation matrix
     rotationMatrixZ.m[0][0] = cosf(fTheta);
