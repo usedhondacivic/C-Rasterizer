@@ -7,7 +7,7 @@ struct vec3d
 
 struct triangle
 {
-    vec3d points[3];
+    vec3d points[3] = {0};
 
     vec3d color;
 };

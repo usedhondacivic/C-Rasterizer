@@ -86,7 +86,7 @@ vec3d GetColor(float &dot){
 }
 
 bool setup(){
-    cubeMesh.triangles = {
+    /*cubeMesh.triangles = {
         //South
 		{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
 		{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
@@ -110,7 +110,9 @@ bool setup(){
 		//Bottom                                                    
 		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
 		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-    };
+    };*/
+
+    cubeMesh.LoadFromObjectFile("./models/shuttle.txt");
 
     //Projection Matrix
     float fNear = 0.1f; 
@@ -168,9 +170,9 @@ void update(){
         MultiplyMatrixVector(triRotatedZ.points[2], triRotatedZX.points[2], rotationMatrixX);
 
         triTranslated = triRotatedZX;
-        triTranslated.points[0].z = triRotatedZX.points[0].z + 3.0f;
-        triTranslated.points[1].z = triRotatedZX.points[1].z + 3.0f;
-        triTranslated.points[2].z = triRotatedZX.points[2].z + 3.0f;
+        triTranslated.points[0].z = triRotatedZX.points[0].z + 15.0f;
+        triTranslated.points[1].z = triRotatedZX.points[1].z + 15.0f;
+        triTranslated.points[2].z = triRotatedZX.points[2].z + 15.0f;
 
         vec3d normal, line1, line2;
 
