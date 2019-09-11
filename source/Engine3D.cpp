@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <math.h>
 #include <chrono>
 
@@ -112,7 +113,7 @@ bool setup(){
 		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
     };*/
 
-    cubeMesh.LoadFromObjectFile("./models/shuttle.txt");
+    cubeMesh.LoadFromObjectFile("./models/ship.obj");
 
     //Projection Matrix
     float fNear = 0.1f; 
@@ -158,6 +159,8 @@ void update(){
     rotationMatrixX.m[2][2] = cosf(fTheta * 0.5f);
     rotationMatrixX.m[3][3] = 1;
 
+    std::vector<triangle> vecTrianglesToRaster;
+
     for(auto tri : cubeMesh.triangles){
         triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 
@@ -170,9 +173,9 @@ void update(){
         MultiplyMatrixVector(triRotatedZ.points[2], triRotatedZX.points[2], rotationMatrixX);
 
         triTranslated = triRotatedZX;
-        triTranslated.points[0].z = triRotatedZX.points[0].z + 15.0f;
-        triTranslated.points[1].z = triRotatedZX.points[1].z + 15.0f;
-        triTranslated.points[2].z = triRotatedZX.points[2].z + 15.0f;
+        triTranslated.points[0].z = triRotatedZX.points[0].z + 8.0f;
+        triTranslated.points[1].z = triRotatedZX.points[1].z + 8.0f;
+        triTranslated.points[2].z = triRotatedZX.points[2].z + 8.0f;
 
         vec3d normal, line1, line2;
 
@@ -202,7 +205,7 @@ void update(){
 
             float dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
 
-            triTranslated.color = GetColor(dot);
+            triProjected.color = GetColor(dot);
 
             MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
             MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
@@ -215,10 +218,19 @@ void update(){
             triProjected.points[0].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[0].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
             triProjected.points[1].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[1].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
             triProjected.points[2].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[2].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
-            
-            SDL_SetRenderDrawColor( gRenderer, triTranslated.color.x, triTranslated.color.y, triTranslated.color.z, 255);
 
-            drawTriangle(triProjected, triTranslated.color);
+            vecTrianglesToRaster.push_back(triProjected);
+        }
+
+        std::sort(vecTrianglesToRaster.begin(), vecTrianglesToRaster.end(), [](triangle &t1, triangle &t2){
+            float z1 = (t1.points[0].z + t1.points[1].z + t1.points[2].z) / 3.0f;
+            float z2 = (t2.points[0].z + t2.points[1].z + t2.points[2].z) / 3.0f;
+
+            return z1 > z2;
+        });
+
+        for(auto &triProjected : vecTrianglesToRaster){
+            drawTriangle(triProjected, triProjected.color);
         }
     }
 
