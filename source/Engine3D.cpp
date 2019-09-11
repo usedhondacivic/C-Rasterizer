@@ -2,7 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <math.h>
@@ -29,7 +29,7 @@ struct mesh
             char line[128];
             f.getline(line, 128);
 
-            std::strstream s;
+            std::stringstream s;
             s << line;
 
             char junk;
