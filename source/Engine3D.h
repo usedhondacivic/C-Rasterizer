@@ -1,8 +1,17 @@
 #pragma once
 
-struct vec3d
+class vec3d
 {
-    float x, y, z;
+public:
+    union{
+        struct{float x, y, z; };
+        struct{float pitch, yaw, roll; };
+        float n[3] = {0, 0, 0};
+    }
+
+    vec3d(){
+        x
+    }
 };
 
 struct triangle

@@ -173,9 +173,9 @@ void update(){
         MultiplyMatrixVector(triRotatedZ.points[2], triRotatedZX.points[2], rotationMatrixX);
 
         triTranslated = triRotatedZX;
-        triTranslated.points[0].z = triRotatedZX.points[0].z + 8.0f;
-        triTranslated.points[1].z = triRotatedZX.points[1].z + 8.0f;
-        triTranslated.points[2].z = triRotatedZX.points[2].z + 8.0f;
+        triTranslated.points[0].z = triRotatedZX.points[0].z + 15.0f;
+        triTranslated.points[1].z = triRotatedZX.points[1].z + 15.0f;
+        triTranslated.points[2].z = triRotatedZX.points[2].z + 15.0f;
 
         vec3d normal, line1, line2;
 
