@@ -14,49 +14,6 @@
 #include "Constants.h"
 #include "Graphics.h"
 
-struct mesh
-{
-    std::vector<triangle> triangles;
-
-    bool LoadFromObjectFile(std::string sFilename){
-        std::ifstream f(sFilename);
-        if(!f.is_open()){
-            return false;
-        }
-
-        std::vector<vec3d> verts;
-
-        while(!f.eof()){
-            char line[128];
-            f.getline(line, 128);
-
-            std::stringstream s;
-            s << line;
-
-            char junk;
-
-            if(line[0] == 'v'){
-                vec3d v;
-                s >> junk >> v.x >> v.y >> v.z;
-                verts.push_back(v);
-            }
-
-            if(line[0] == 'f'){
-                int f[3];
-                s >> junk >> f[0] >> f[1] >> f[2];
-                triangles.push_back({ verts[f[0] - 1],  verts[f[1] - 1], verts[f[2] - 1]});
-            }
-        }
-
-        return true;
-    }
-};
-
-struct matrix4x4
-{
-    float m[4][4] = {0};
-};
-
 auto tp1 = std::chrono::system_clock::now();
 auto tp2 = std::chrono::system_clock::now();
 
@@ -75,9 +32,7 @@ void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
     output.z = input.x * matrix.m[0][2] + input.y * matrix.m[1][2] + input.z * matrix.m[2][2] + matrix.m[3][2];
     float w = input.x * matrix.m[0][3] + input.y * matrix.m[1][3] + input.z * matrix.m[2][3] + matrix.m[3][3];
     if(w != 0.0f){
-        output.x /= w;
-        output.y /= w;
-        output.z /= w;
+        output /= w;
     }
 }
 
@@ -143,7 +98,7 @@ void update(){
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
 
-    //X rotation matrix
+    //Z rotation matrix
     rotationMatrixZ.m[0][0] = cosf(fTheta);
     rotationMatrixZ.m[0][1] = sinf(fTheta);
     rotationMatrixZ.m[1][0] = -sinf(fTheta);
