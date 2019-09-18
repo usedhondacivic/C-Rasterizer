@@ -1,5 +1,9 @@
 #pragma once
 #include <math.h>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 class vec3d
 {
