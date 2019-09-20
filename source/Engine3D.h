@@ -186,27 +186,11 @@ public:
     matrix4x4(){
     }
 
-    matrix4x4(matrixType t){
-        switch(t){
-            case matrixType::IDENTITY:
-                this->m[0][0] = 1.0f;
-                this->m[1][1] = 1.0f;
-                this->m[2][2] = 1.0f;
-                this->m[3][3] = 1.0f;
-                break;
-            case matrixType::ROTATION_X:
-                break;
-            case matrixType::ROTATION_Z:
-                break;
-            case matrixType::TRANSLATION:
-                break;
-            case matrixType::PROJECTION:
-                break;
-        }
-    }
-
     void makeIdentity(){
-        
+        this->m[0][0] = 1.0f;
+        this->m[1][1] = 1.0f;
+        this->m[2][2] = 1.0f;
+        this->m[3][3] = 1.0f;
     }
 
     void makeRotationX(float fAngleRad){
@@ -237,8 +221,13 @@ public:
         this->m[3][2] = z;
     }
 
-    void makeProjection(){
-
+    void makeProjection(float fNear, float fFar, float fFov, float fAspectRatio, float fFovRad){
+        this->m[0][0] = fAspectRatio * fFovRad;
+        this->m[1][1] = fFovRad;
+        this->m[2][2] = fFar / (fFar - fNear);
+        this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
+        this->m[2][3] = 1.0f;
+        this->m[3][3] = 0.0f;
     }
 };
 
