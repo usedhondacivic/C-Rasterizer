@@ -122,6 +122,15 @@ public:
         r.z = this->z / rhs;
         return r;
     }
+
+    vec3d operator*(const matrix4x4 rhs){
+        vec3d r;
+        r.x = this->x * rhs.m[0][0] + this->y * rhs.m[1][0] + this->z * rhs.m[2][0] + this->w * rhs.m[3][0];
+        r.y = this->x * rhs.m[0][1] + this->y * rhs.m[1][1] + this->z * rhs.m[2][1] + this->w * rhs.m[3][1];
+        r.z = this->x * rhs.m[0][2] + this->y * rhs.m[1][2] + this->z * rhs.m[2][2] + this->w * rhs.m[3][2];
+        r.w = this->x * rhs.m[0][3] + this->y * rhs.m[1][3] + this->z * rhs.m[2][3] + this->w * rhs.m[3][3];
+        return r;
+    }
 };
 
 struct triangle
@@ -169,15 +178,6 @@ struct mesh
     }
 };
 
-enum class matrixType
-{
-    IDENTITY,
-    ROTATION_X,
-    ROTATION_Z,
-    TRANSLATION,
-    PROJECTION
-};
-
 class matrix4x4
 {
 public:
@@ -221,13 +221,24 @@ public:
         this->m[3][2] = z;
     }
 
-    void makeProjection(float fNear, float fFar, float fFov, float fAspectRatio, float fFovRad){
+    void makeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar){
+        float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
         this->m[0][0] = fAspectRatio * fFovRad;
         this->m[1][1] = fFovRad;
         this->m[2][2] = fFar / (fFar - fNear);
         this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
         this->m[2][3] = 1.0f;
         this->m[3][3] = 0.0f;
+    }
+
+    matrix4x4 operator*(const matrix4x4 rhs){
+        matrix4x4 matrix;
+        for(int c = 0; c < 4; c++){
+            for(int r = 0; r < 4; r++){
+                matrix.m[r][c] = this->m[r][0] * rhs.m[0][c] + this->m[r][1] * rhs.m[1][c] + this->m[r][2] * rhs.m[2][c] + this->m[r][3] * rhs.m[3][c];
+            }
+        }
+        return matrix;
     }
 };
 

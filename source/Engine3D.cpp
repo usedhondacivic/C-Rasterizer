@@ -20,6 +20,8 @@ vec3d vCamera;
 
 matrix4x4 projectionMatrix;
 matrix4x4 rotationMatrixX, rotationMatrixZ;
+matrix4x4 translationMatrix;
+matrix4x4 worldMatrix;
 
 float fTheta;
 
@@ -39,32 +41,6 @@ vec3d GetColor(float &dot){
 }
 
 bool setup(){
-    /*cubeMesh.triangles = {
-        //South
-		{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-
-		//East                                                      
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
-
-		//North                                                     
-		{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
-
-		//West                                                      
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
-
-		//Top                                                       
-		{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
-		{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
-
-		//Bottom                                                    
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-    };*/
-
     cubeMesh.LoadFromObjectFile("./models/ship.obj");
 
     //Projection Matrix
@@ -74,12 +50,7 @@ bool setup(){
     float fAspectRatio = (float)constants::SCREEN_HEIGHT / (float)constants::SCREEN_WIDTH;
     float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
 
-    projectionMatrix.m[0][0] = fAspectRatio * fFovRad;
-    projectionMatrix.m[1][1] = fFovRad;
-    projectionMatrix.m[2][2] = fFar / (fFar - fNear);
-    projectionMatrix.m[3][2] = (-fFar * fNear) / (fFar -fNear);
-    projectionMatrix.m[2][3] = 1.0f;
-    projectionMatrix.m[3][3] = 0.0f;
+    projectionMatrix.makeProjection(90.0f, (float)constants::SCREEN_HEIGHT / (float)constants::SCREEN_WIDTH, 0.1f, 1000.0f);
 
     return true;
 }
@@ -95,67 +66,42 @@ void update(){
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
 
-    //Z rotation matrix
-    rotationMatrixZ.m[0][0] = cosf(fTheta);
-    rotationMatrixZ.m[0][1] = sinf(fTheta);
-    rotationMatrixZ.m[1][0] = -sinf(fTheta);
-    rotationMatrixZ.m[1][1] = cosf(fTheta);
-    rotationMatrixZ.m[2][2] = 1;
-    rotationMatrixZ.m[3][3] = 1;
+    rotationMatrixZ.makeRotationZ(fTheta);
+    rotationMatrixX.makeRotationX(fTheta);
 
-    //X rotation matrix
-    rotationMatrixX.m[0][0] = 1;
-    rotationMatrixX.m[1][1] = cosf(fTheta * 0.5f);
-    rotationMatrixX.m[1][2] = sinf(fTheta * 0.5f);
-    rotationMatrixX.m[2][1] = -sinf(fTheta * 0.5f);
-    rotationMatrixX.m[2][2] = cosf(fTheta * 0.5f);
-    rotationMatrixX.m[3][3] = 1;
+    translationMatrix.makeTranslation(0.0f, 0.0f, 16.0f);
+
+    worldMatrix.makeIdentity();
+    worldMatrix = rotationMatrixZ * rotationMatrixX;
+    worldMatrix = worldMatrix * translationMatrix;
+
+
 
     std::vector<triangle> vecTrianglesToRaster;
 
     for(auto tri : cubeMesh.triangles){
-        triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
+        triangle triProjected, triTransformed;
 
-        MultiplyMatrixVector(tri.points[0], triRotatedZ.points[0], rotationMatrixZ);
-        MultiplyMatrixVector(tri.points[1], triRotatedZ.points[1], rotationMatrixZ);
-        MultiplyMatrixVector(tri.points[2], triRotatedZ.points[2], rotationMatrixZ);
-        
-        MultiplyMatrixVector(triRotatedZ.points[0], triRotatedZX.points[0], rotationMatrixX);
-        MultiplyMatrixVector(triRotatedZ.points[1], triRotatedZX.points[1], rotationMatrixX);
-        MultiplyMatrixVector(triRotatedZ.points[2], triRotatedZX.points[2], rotationMatrixX);
-
-        triTranslated = triRotatedZX;
-        triTranslated.points[0].z = triRotatedZX.points[0].z + 15.0f;
-        triTranslated.points[1].z = triRotatedZX.points[1].z + 15.0f;
-        triTranslated.points[2].z = triRotatedZX.points[2].z + 15.0f;
+        triTransformed.points[0] = tri.points[0] * worldMatrix;
+        triTransformed.points[1] = tri.points[1] * worldMatrix;
+        triTransformed.points[2] = tri.points[2] * worldMatrix;
 
         vec3d normal, line1, line2;
 
-        line1.x = triTranslated.points[1].x - triTranslated.points[0].x;
-        line1.y = triTranslated.points[1].y - triTranslated.points[0].y;
-        line1.z = triTranslated.points[1].z - triTranslated.points[0].z;
+        line1 = triTransformed.points[1] - triTransformed.points[0];
+        line2 = triTransformed.points[2] - triTransformed.points[1];
 
-        line2.x = triTranslated.points[2].x - triTranslated.points[0].x;
-        line2.y = triTranslated.points[2].y - triTranslated.points[0].y;
-        line2.z = triTranslated.points[2].z - triTranslated.points[0].z;
+        normal = line1.cross(line2);
 
-        normal.x = line1.y * line2.z - line1.z * line2.y;
-        normal.y = line1.z * line2.x - line1.x * line2.z;
-        normal.z = line1.x * line2.y - line1.y * line2.x;
+        normal = normal.normal;
 
-        float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
-        normal.x /= length; normal.y /= length; normal.z /= length;
+        vec3d vCameraRay = triTransformed.points[0] - vCamera;
 
-        if(
-            normal.x * (triTranslated.points[0].x - vCamera.x) + 
-            normal.y * (triTranslated.points[0].y - vCamera.y) + 
-            normal.z * (triTranslated.points[0].z - vCamera.z) < 0
-        ){
+        if(normal.dot(vCameraRay) < 0.0f){
             vec3d lightDirection = {0.0f, 0.0f, -1.0f};
-            float length = sqrtf(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
-            lightDirection.x /= length; lightDirection.y /= length; lightDirection.z /= length;
+            lightDirection = lightDirection.normal();
 
-            float dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
+            float dot = std::max(0.1f, lightDirection.dot(normal));
 
             triProjected.color = GetColor(dot);
 
