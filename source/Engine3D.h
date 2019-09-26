@@ -5,6 +5,70 @@
 #include <sstream>
 #include <string>
 
+class matrix4x4
+{
+public:
+    float m[4][4] = {0};
+
+    matrix4x4(){
+    }
+
+    void makeIdentity(){
+        this->m[0][0] = 1.0f;
+        this->m[1][1] = 1.0f;
+        this->m[2][2] = 1.0f;
+        this->m[3][3] = 1.0f;
+    }
+
+    void makeRotationX(float fAngleRad){
+        this->m[0][0] = 1;
+        this->m[1][1] = cosf(fAngleRad * 0.5f);
+        this->m[1][2] = sinf(fAngleRad * 0.5f);
+        this->m[2][1] = -sinf(fAngleRad * 0.5f);
+        this->m[2][2] = cosf(fAngleRad * 0.5f);
+        this->m[3][3] = 1;
+    }
+
+    void makeRotationZ(float fAngleRad){
+        this->m[0][0] = cosf(fAngleRad);
+        this->m[0][1] = sinf(fAngleRad);
+        this->m[1][0] = -sinf(fAngleRad);
+        this->m[1][1] = cosf(fAngleRad);
+        this->m[2][2] = 1;
+        this->m[3][3] = 1;
+    }
+
+    void makeTranslation(float x, float y, float z){
+        this->m[0][0] = 1.0f;
+        this->m[1][1] = 1.0f;
+        this->m[2][2] = 1.0f;
+        this->m[3][3] = 1.0f;
+        this->m[3][0] = x;
+        this->m[3][1] = y;
+        this->m[3][2] = z;
+    }
+
+    void makeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar){
+        float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
+        this->m[0][0] = fAspectRatio * fFovRad;
+        this->m[1][1] = fFovRad;
+        this->m[2][2] = fFar / (fFar - fNear);
+        this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
+        this->m[2][3] = 1.0f;
+        this->m[3][3] = 0.0f;
+    }
+
+    matrix4x4 operator*(const matrix4x4 rhs){
+        matrix4x4 matrix;
+        for(int c = 0; c < 4; c++){
+            for(int r = 0; r < 4; r++){
+                matrix.m[r][c] = this->m[r][0] * rhs.m[0][c] + this->m[r][1] * rhs.m[1][c] + this->m[r][2] * rhs.m[2][c] + this->m[r][3] * rhs.m[3][c];
+            }
+        }
+        return matrix;
+    }
+};
+
 class vec3d
 {
 public:
@@ -16,10 +80,12 @@ public:
 
     vec3d(){
         x = y = z = 0;
+        w = 1;
     }
 
     vec3d(float a, float b, float c){
         x = a; y = b; z = c;
+        w = 1;
     }
 
     float length() const{
@@ -46,7 +112,7 @@ public:
         };
     }
 
-    vec3d& operator +=(const vec3d& rhs)
+    vec3d& operator+=(const vec3d& rhs)
     {
         this->x += rhs.x;
         this->y += rhs.y;
@@ -58,6 +124,21 @@ public:
         this->x -= rhs.x;
         this->y -= rhs.y;
         this->z -= rhs.z;
+        return *this;
+    }
+
+    vec3d& operator*=(const vec3d& rhs)
+    {
+        this->x *= rhs.x;
+        this->y *= rhs.y;
+        this->z *= rhs.z;
+        return *this;
+    }
+
+    vec3d& operator/=(const vec3d& rhs){
+        this->x /= rhs.x;
+        this->y /= rhs.y;
+        this->z /= rhs.z;
         return *this;
     }
 
@@ -175,70 +256,6 @@ struct mesh
         }
 
         return true;
-    }
-};
-
-class matrix4x4
-{
-public:
-    float m[4][4] = {0};
-
-    matrix4x4(){
-    }
-
-    void makeIdentity(){
-        this->m[0][0] = 1.0f;
-        this->m[1][1] = 1.0f;
-        this->m[2][2] = 1.0f;
-        this->m[3][3] = 1.0f;
-    }
-
-    void makeRotationX(float fAngleRad){
-        this->m[0][0] = 1;
-        this->m[1][1] = cosf(fAngleRad * 0.5f);
-        this->m[1][2] = sinf(fAngleRad * 0.5f);
-        this->m[2][1] = -sinf(fAngleRad * 0.5f);
-        this->m[2][2] = cosf(fAngleRad * 0.5f);
-        this->m[3][3] = 1;
-    }
-
-    void makeRotationZ(float fAngleRad){
-        this->m[0][0] = cosf(fAngleRad);
-        this->m[0][1] = sinf(fAngleRad);
-        this->m[1][0] = -sinf(fAngleRad);
-        this->m[1][1] = cosf(fAngleRad);
-        this->m[2][2] = 1;
-        this->m[3][3] = 1;
-    }
-
-    void makeTranslation(float x, float y, float z){
-        this->m[0][0] = 1.0f;
-        this->m[1][1] = 1.0f;
-        this->m[2][2] = 1.0f;
-        this->m[3][3] = 1.0f;
-        this->m[3][0] = x;
-        this->m[3][1] = y;
-        this->m[3][2] = z;
-    }
-
-    void makeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar){
-        float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
-        this->m[0][0] = fAspectRatio * fFovRad;
-        this->m[1][1] = fFovRad;
-        this->m[2][2] = fFar / (fFar - fNear);
-        this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
-        this->m[2][3] = 1.0f;
-        this->m[3][3] = 0.0f;
-    }
-
-    matrix4x4 operator*(const matrix4x4 rhs){
-        matrix4x4 matrix;
-        for(int c = 0; c < 4; c++){
-            for(int r = 0; r < 4; r++){
-                matrix.m[r][c] = this->m[r][0] * rhs.m[0][c] + this->m[r][1] * rhs.m[1][c] + this->m[r][2] * rhs.m[2][c] + this->m[r][3] * rhs.m[3][c];
-            }
-        }
-        return matrix;
     }
 };
 

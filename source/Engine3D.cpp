@@ -75,8 +75,6 @@ void update(){
     worldMatrix = rotationMatrixZ * rotationMatrixX;
     worldMatrix = worldMatrix * translationMatrix;
 
-
-
     std::vector<triangle> vecTrianglesToRaster;
 
     for(auto tri : cubeMesh.triangles){
@@ -93,9 +91,10 @@ void update(){
 
         normal = line1.cross(line2);
 
-        normal = normal.normal;
+        normal = normal.normal();
 
         vec3d vCameraRay = triTransformed.points[0] - vCamera;
+        std::cout << "X: " << vCamera.x << " Y: " << vCamera.y << " Z: " << vCamera.z << "\n";
 
         if(normal.dot(vCameraRay) < 0.0f){
             vec3d lightDirection = {0.0f, 0.0f, -1.0f};
@@ -105,17 +104,22 @@ void update(){
 
             triProjected.color = GetColor(dot);
 
-            MultiplyMatrixVector(triTranslated.points[0], triProjected.points[0], projectionMatrix);
-            MultiplyMatrixVector(triTranslated.points[1], triProjected.points[1], projectionMatrix);
-            MultiplyMatrixVector(triTranslated.points[2], triProjected.points[2], projectionMatrix);
+            triProjected.points[0] = triTransformed.points[0] * projectionMatrix;
+            triProjected.points[1] = triTransformed.points[1] * projectionMatrix;
+            triProjected.points[2] = triTransformed.points[2] * projectionMatrix;
+            triProjected.color = triTransformed.color;
 
-            triProjected.points[0].x += 1.0f; triProjected.points[0].y += 1.0f;
-            triProjected.points[1].x += 1.0f; triProjected.points[1].y += 1.0f;
-            triProjected.points[2].x += 1.0f; triProjected.points[2].y += 1.0f;
+            triProjected.points[0] /= triProjected.points[0].w;
+            triProjected.points[1] /= triProjected.points[1].w;
+            triProjected.points[2] /= triProjected.points[2].w;
 
-            triProjected.points[0].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[0].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
-            triProjected.points[1].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[1].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
-            triProjected.points[2].x *= (float)constants::SCREEN_WIDTH / 2.0f; triProjected.points[2].y *= (float)constants::SCREEN_HEIGHT / 2.0f;
+            vec3d vOffsetView = {1, 1, 0};
+            triProjected.points[0] += vOffsetView;
+            triProjected.points[1] += vOffsetView;
+            triProjected.points[2] += vOffsetView;
+            
+            vec3d vScaleView = {(float)constants::SCREEN_WIDTH / 2.0f, (float)constants::SCREEN_HEIGHT / 2.0f, 1};
+            triProjected.points[0] *= vScaleView;
 
             vecTrianglesToRaster.push_back(triProjected);
         }
