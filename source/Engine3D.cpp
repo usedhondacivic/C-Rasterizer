@@ -94,7 +94,6 @@ void update(){
         normal = normal.normal();
 
         vec3d vCameraRay = triTransformed.points[0] - vCamera;
-        std::cout << "X: " << vCamera.x << " Y: " << vCamera.y << " Z: " << vCamera.z << "\n";
 
         if(normal.dot(vCameraRay) < 0.0f){
             vec3d lightDirection = {0.0f, 0.0f, -1.0f};

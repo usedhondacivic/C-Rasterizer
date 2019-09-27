@@ -97,6 +97,10 @@ public:
     }
 
     float dot(const vec3d& b){
+        return x * b.x + y * b.y + z * b.z;
+    }
+    
+    float angleBetween(const vec3d& b){
         return acosf((x * b.x + y * b.y + z * b.z) / (length() * b.length()));
     }
 
