@@ -30,6 +30,10 @@ bool init(){
             std::cout << "Warning: Linear texture filtering not enabled!";
         }
 
+        if(!SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")){
+            std::cout << "Warning: Opengl rendering is not enabled!";
+        }
+
         gWindow = SDL_CreateWindow("Rasterizer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, constants::SCREEN_WIDTH, constants::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if(gWindow == NULL){
             std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << "\n";
@@ -41,6 +45,7 @@ bool init(){
                 success = false;
             }else{
                 SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderSetLogicalSize(gRenderer, constants::LOGICAL_WIDTH, constants::LOGICAL_HEIGHT);
 
                 int imgFlags = IMG_INIT_PNG;
                 if(!(IMG_Init(imgFlags) & imgFlags)){

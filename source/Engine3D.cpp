@@ -6,6 +6,8 @@
 #include <math.h>
 #include <chrono>
 
+#include <SDL2/SDL2_gfxPrimitives.h>
+
 #include "Engine3D.h"
 #include "Main.h"
 #include "Constants.h"
@@ -36,7 +38,7 @@ void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
 }
 
 vec3d GetColor(float &dot){
-    vec3d color = {(dot + 1.0f) * 127.5f, (dot + 1.0f) * 127.5f, (dot + 1.0f) * 127.5f};
+    vec3d color = {dot * 255.0f, dot * 255.0f, dot * 255.0f};
     return color;
 }
 
@@ -47,10 +49,10 @@ bool setup(){
     float fNear = 0.1f; 
     float fFar = 1000.0f;
     float fFov = 90.0f;
-    float fAspectRatio = (float)constants::SCREEN_HEIGHT / (float)constants::SCREEN_WIDTH;
+    float fAspectRatio = (float)constants::LOGICAL_HEIGHT / (float)constants::LOGICAL_WIDTH;
     float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
 
-    projectionMatrix.makeProjection(90.0f, (float)constants::SCREEN_HEIGHT / (float)constants::SCREEN_WIDTH, 0.1f, 1000.0f);
+    projectionMatrix.makeProjection(90.0f, (float)constants::LOGICAL_HEIGHT / (float)constants::LOGICAL_WIDTH, 0.1f, 1000.0f);
 
     return true;
 }
@@ -106,7 +108,6 @@ void update(){
             triProjected.points[0] = triTransformed.points[0] * projectionMatrix;
             triProjected.points[1] = triTransformed.points[1] * projectionMatrix;
             triProjected.points[2] = triTransformed.points[2] * projectionMatrix;
-            triProjected.color = triTransformed.color;
 
             triProjected.points[0] /= triProjected.points[0].w;
             triProjected.points[1] /= triProjected.points[1].w;
@@ -117,8 +118,10 @@ void update(){
             triProjected.points[1] += vOffsetView;
             triProjected.points[2] += vOffsetView;
             
-            vec3d vScaleView = {(float)constants::SCREEN_WIDTH / 2.0f, (float)constants::SCREEN_HEIGHT / 2.0f, 1};
+            vec3d vScaleView = {(float)constants::LOGICAL_WIDTH / 2.0f, (float)constants::LOGICAL_HEIGHT / 2.0f, 1};
             triProjected.points[0] *= vScaleView;
+            triProjected.points[1] *= vScaleView;
+            triProjected.points[2] *= vScaleView;
 
             vecTrianglesToRaster.push_back(triProjected);
         }
@@ -132,7 +135,10 @@ void update(){
 
         for(auto &triProjected : vecTrianglesToRaster){
             drawTriangle(triProjected, triProjected.color);
+            //std::cout << "X: " << triProjected.points[0].x << " Y: " << triProjected.points[0].y << " Z: " << triProjected.points[0].z << "\n";
+            
         }
+        
     }
 
     SDL_RenderPresent(gRenderer);
