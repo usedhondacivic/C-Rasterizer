@@ -1,6 +1,6 @@
 ﻿#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include<string>
+#include <string>
 #include <iostream>
 
 #include "Engine3D.h"
@@ -18,6 +18,78 @@ SDL_Texture* loadTexture( std::string path );
 SDL_Window* gWindow = NULL;
 
 SDL_Renderer* gRenderer = NULL;
+
+class LTimer
+{
+    public:
+		LTimer(){
+            mStartTicks = 0;
+            mPausedTicks = 0;
+
+            mPaused = false;
+            mStarted = false;
+        };
+
+		void start(){
+            mStarted = true;
+            mPaused = false;
+            mStartTicks = SDL_GetTicks();
+            mPausedTicks = 0;
+        };
+
+		void stop(){
+            mStarted = false;
+            mPaused = false;
+            mStartTicks = 0;
+            mPausedTicks = 0;
+        };
+
+		void pause(){
+            if( mStarted && !mPaused )
+            {
+                mPaused = true;
+                mPausedTicks = SDL_GetTicks() - mStartTicks;
+                mStartTicks = 0;
+            }
+        };
+
+		void unpause(){
+            if( mStarted && mPaused )
+            {
+                mPaused = false;
+                mStartTicks = SDL_GetTicks() - mPausedTicks;
+                mPausedTicks = 0;
+            }
+        };
+
+		Uint32 getTicks(){
+            Uint32 time = 0;
+            if( mStarted ){
+                if( mPaused ){
+                    time = mPausedTicks;
+                }else{
+                    time = SDL_GetTicks() - mStartTicks;
+                }
+            }
+            return time;
+        };
+
+		bool isStarted(){
+            return mStarted;
+        };
+
+		bool isPaused(){
+            return mPaused && mStarted;
+        };
+
+    private:
+		Uint32 mStartTicks;
+
+		Uint32 mPausedTicks;
+
+		bool mPaused;
+		bool mStarted;
+};
 
 bool init(){
     bool success = true;
@@ -106,6 +178,11 @@ int main(int argc, char* args[]){
 
                 SDL_Event e;
 
+                LTimer fpsTimer;
+
+                int countedFrames = 0;
+                fpsTimer.start();
+
                 while(!quit){
                     while(SDL_PollEvent(&e) != 0){
                         if(e.type == SDL_QUIT){
@@ -115,7 +192,21 @@ int main(int argc, char* args[]){
                         }
                     }
 
+                    float avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.0f);
+                    if(avgFPS > 2000000){
+                        avgFPS = 0;
+                    }
+
+                    std::string title = "Rasterizer - FPS: " + std::to_string(avgFPS);
+                    char *cTitle = new char[title.size() + 1];
+                    title.copy(cTitle, title.size() + 1);
+                    cTitle[title.size()] = '\0';
+
+
+                    SDL_SetWindowTitle(gWindow, cTitle);
+
                     update();
+                    countedFrames++;
                 }
             }
         }
