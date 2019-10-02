@@ -58,6 +58,8 @@ public:
         this->m[3][3] = 0.0f;
     }
 
+    void makePointAt(vec3d &pos, vec3d &target, vec3d &up);
+
     matrix4x4 operator*(const matrix4x4 rhs){
         matrix4x4 matrix;
         for(int c = 0; c < 4; c++){
@@ -217,6 +219,10 @@ public:
         return r;
     }
 };
+
+void matrix4x4::makePointAt(vec3d &pos, vec3d &target, vec3d &up){
+    vec3d newForward = target - pos;
+}
 
 struct triangle
 {
