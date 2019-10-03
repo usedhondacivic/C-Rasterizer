@@ -12,6 +12,8 @@
 #include "Main.h"
 #include "Constants.h"
 #include "Graphics.h"
+#include "Vectorlib/Vec3d.h"
+#include "Vectorlib/Matrix4x4.h"
 
 auto tp1 = std::chrono::system_clock::now();
 auto tp2 = std::chrono::system_clock::now();

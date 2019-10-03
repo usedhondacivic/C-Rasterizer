@@ -10,6 +10,8 @@
                 "source/Main.cpp",
                 "source/Engine3D.cpp",
                 "source/Graphics.cpp",
+                "source/Vectorlib/Matrix4x4.cpp",
+                "source/Vectorlib/Vec3d.cpp",
                 "-I../mingw_dev_lib/include",
                 "-L../mingw_dev_lib/lib",
                 "-L./binaries",
