@@ -12,8 +12,6 @@
 #include "Main.h"
 #include "Constants.h"
 #include "Graphics.h"
-#include "Vectorlib/Vec3d.h"
-#include "Vectorlib/Matrix4x4.h"
 
 auto tp1 = std::chrono::system_clock::now();
 auto tp2 = std::chrono::system_clock::now();
@@ -45,7 +43,7 @@ vec3d GetColor(float &dot){
 }
 
 bool setup(){
-    cubeMesh.LoadFromObjectFile("./models/teapot.obj");
+    cubeMesh.LoadFromObjectFile("./models/ship.obj");
 
     //Projection Matrix
     float fNear = 0.1f; 
@@ -65,7 +63,7 @@ void update(){
     tp1 = tp2;
     float fElapsedTime = elapsedTime.count();
 
-    //fTheta += 1.0f * fElapsedTime;
+    fTheta += 1.0f * fElapsedTime;
 
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
@@ -137,6 +135,8 @@ void update(){
 
         for(auto &triProjected : vecTrianglesToRaster){
             drawTriangle(triProjected, triProjected.color);
+            //std::cout << "X: " << triProjected.points[0].x << " Y: " << triProjected.points[0].y << " Z: " << triProjected.points[0].z << "\n";
+            
         }
         
     }
