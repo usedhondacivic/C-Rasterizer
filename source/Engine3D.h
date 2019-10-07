@@ -5,72 +5,6 @@
 #include <sstream>
 #include <string>
 
-class vec3d;
-
-class matrix4x4
-{
-public:
-    float m[4][4] = {0};
-
-    matrix4x4(){
-    }
-
-    void makeIdentity(){
-        this->m[0][0] = 1.0f;
-        this->m[1][1] = 1.0f;
-        this->m[2][2] = 1.0f;
-        this->m[3][3] = 1.0f;
-    }
-
-    void makeRotationX(float fAngleRad){
-        this->m[0][0] = 1;
-        this->m[1][1] = cosf(fAngleRad * 0.5f);
-        this->m[1][2] = sinf(fAngleRad * 0.5f);
-        this->m[2][1] = -sinf(fAngleRad * 0.5f);
-        this->m[2][2] = cosf(fAngleRad * 0.5f);
-        this->m[3][3] = 1;
-    }
-
-    void makeRotationZ(float fAngleRad){
-        this->m[0][0] = cosf(fAngleRad);
-        this->m[0][1] = sinf(fAngleRad);
-        this->m[1][0] = -sinf(fAngleRad);
-        this->m[1][1] = cosf(fAngleRad);
-        this->m[2][2] = 1;
-        this->m[3][3] = 1;
-    }
-
-    void makeTranslation(float x, float y, float z){
-        this->m[0][0] = 1.0f;
-        this->m[1][1] = 1.0f;
-        this->m[2][2] = 1.0f;
-        this->m[3][3] = 1.0f;
-        this->m[3][0] = x;
-        this->m[3][1] = y;
-        this->m[3][2] = z;
-    }
-
-    void makeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar){
-        float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
-        this->m[0][0] = fAspectRatio * fFovRad;
-        this->m[1][1] = fFovRad;
-        this->m[2][2] = fFar / (fFar - fNear);
-        this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
-        this->m[2][3] = 1.0f;
-        this->m[3][3] = 0.0f;
-    }
-
-    matrix4x4 operator*(const matrix4x4 rhs){
-        matrix4x4 matrix;
-        for(int c = 0; c < 4; c++){
-            for(int r = 0; r < 4; r++){
-                matrix.m[r][c] = this->m[r][0] * rhs.m[0][c] + this->m[r][1] * rhs.m[1][c] + this->m[r][2] * rhs.m[2][c] + this->m[r][3] * rhs.m[3][c];
-            }
-        }
-        return matrix;
-    }
-};
-
 class vec3d
 {
 public:
@@ -209,13 +143,103 @@ public:
         r.z = this->z / rhs;
         return r;
     }
+};
 
-    vec3d operator*(const matrix4x4 rhs){
+class matrix4x4
+{
+public:
+    float m[4][4] = {0};
+
+    matrix4x4(){
+    }
+
+    void makeIdentity(){
+        this->m[0][0] = 1.0f;
+        this->m[1][1] = 1.0f;
+        this->m[2][2] = 1.0f;
+        this->m[3][3] = 1.0f;
+    }
+
+    void makeRotationX(float fAngleRad){
+        this->m[0][0] = 1;
+        this->m[1][1] = cosf(fAngleRad * 0.5f);
+        this->m[1][2] = sinf(fAngleRad * 0.5f);
+        this->m[2][1] = -sinf(fAngleRad * 0.5f);
+        this->m[2][2] = cosf(fAngleRad * 0.5f);
+        this->m[3][3] = 1;
+    }
+
+    void makeRotationZ(float fAngleRad){
+        this->m[0][0] = cosf(fAngleRad);
+        this->m[0][1] = sinf(fAngleRad);
+        this->m[1][0] = -sinf(fAngleRad);
+        this->m[1][1] = cosf(fAngleRad);
+        this->m[2][2] = 1;
+        this->m[3][3] = 1;
+    }
+
+    void makeTranslation(float x, float y, float z){
+        this->m[0][0] = 1.0f;
+        this->m[1][1] = 1.0f;
+        this->m[2][2] = 1.0f;
+        this->m[3][3] = 1.0f;
+        this->m[3][0] = x;
+        this->m[3][1] = y;
+        this->m[3][2] = z;
+    }
+
+    void makeProjection(float fFovDegrees, float fAspectRatio, float fNear, float fFar){
+        float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
+        this->m[0][0] = fAspectRatio * fFovRad;
+        this->m[1][1] = fFovRad;
+        this->m[2][2] = fFar / (fFar - fNear);
+        this->m[3][2] = (-fFar * fNear) / (fFar -fNear);
+        this->m[2][3] = 1.0f;
+        this->m[3][3] = 0.0f;
+    }
+
+    void makePointAt(vec3d &pos, vec3d &target, vec3d &up){
+        vec3d newForward = target - pos;
+        newForward= newForward.normal();
+
+        vec3d a = newForward * up.dot(newForward);
+        vec3d newUp = up - a;
+        newUp = newUp.normal();
+
+        vec3d newRight = newUp.cross(newForward);
+
+		this->m[0][0] = newRight.x;	    this->m[0][1] = newRight.y;	    this->m[0][2] = newRight.z;	    this->m[0][3] = 0.0f;
+		this->m[1][0] = newUp.x;		this->m[1][1] = newUp.y;		this->m[1][2] = newUp.z;		this->m[1][3] = 0.0f;
+		this->m[2][0] = newForward.x;	this->m[2][1] = newForward.y;	this->m[2][2] = newForward.z;	this->m[2][3] = 0.0f;
+		this->m[3][0] = pos.x;			this->m[3][1] = pos.y;			this->m[3][2] = pos.z;			this->m[3][3] = 1.0f;
+    }
+
+    void makeQuickInverse(matrix4x4 &m){
+		this->m[0][0] = m.m[0][0]; this->m[0][1] = m.m[1][0]; this->m[0][2] = m.m[2][0]; this->m[0][3] = 0.0f;
+		this->m[1][0] = m.m[0][1]; this->m[1][1] = m.m[1][1]; this->m[1][2] = m.m[2][1]; this->m[1][3] = 0.0f;
+		this->m[2][0] = m.m[0][2]; this->m[2][1] = m.m[1][2]; this->m[2][2] = m.m[2][2]; this->m[2][3] = 0.0f;
+		this->m[3][0] = -(m.m[3][0] * this->m[0][0] + m.m[3][1] * this->m[1][0] + m.m[3][2] * this->m[2][0]);
+		this->m[3][1] = -(m.m[3][0] * this->m[0][1] + m.m[3][1] * this->m[1][1] + m.m[3][2] * this->m[2][1]);
+		this->m[3][2] = -(m.m[3][0] * this->m[0][2] + m.m[3][1] * this->m[1][2] + m.m[3][2] * this->m[2][2]);
+		this->m[3][3] = 1.0f;
+    }
+
+    matrix4x4 operator*(const matrix4x4 rhs){
+        matrix4x4 matrix;
+        for(int c = 0; c < 4; c++){
+            for(int r = 0; r < 4; r++){
+                matrix.m[r][c] = this->m[r][0] * rhs.m[0][c] + this->m[r][1] * rhs.m[1][c] + this->m[r][2] * rhs.m[2][c] + this->m[r][3] * rhs.m[3][c];
+            }
+        }
+        return matrix;
+    }
+
+    vec3d operator*(const vec3d rhs){
         vec3d r;
-        r.x = this->x * rhs.m[0][0] + this->y * rhs.m[1][0] + this->z * rhs.m[2][0] + this->w * rhs.m[3][0];
-        r.y = this->x * rhs.m[0][1] + this->y * rhs.m[1][1] + this->z * rhs.m[2][1] + this->w * rhs.m[3][1];
-        r.z = this->x * rhs.m[0][2] + this->y * rhs.m[1][2] + this->z * rhs.m[2][2] + this->w * rhs.m[3][2];
-        r.w = this->x * rhs.m[0][3] + this->y * rhs.m[1][3] + this->z * rhs.m[2][3] + this->w * rhs.m[3][3];
+        r.x = rhs.x * this->m[0][0] + rhs.y * this->m[1][0] + rhs.z * this->m[2][0] + rhs.w * this->m[3][0];
+        r.y = rhs.x * this->m[0][1] + rhs.y * this->m[1][1] + rhs.z * this->m[2][1] + rhs.w * this->m[3][1];
+        r.z = rhs.x * this->m[0][2] + rhs.y * this->m[1][2] + rhs.z * this->m[2][2] + rhs.w * this->m[3][2];
+        r.w = rhs.x * this->m[0][3] + rhs.y * this->m[1][3] + rhs.z * this->m[2][3] + rhs.w * this->m[3][3];
         return r;
     }
 };

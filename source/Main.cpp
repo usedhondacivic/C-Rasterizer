@@ -188,6 +188,8 @@ int main(int argc, char* args[]){
                         if(e.type == SDL_QUIT){
                             quit = true;
                         }else if(e.type == SDL_KEYDOWN){
+                            std::cout << e.key.keysym.sym << "\n";
+                        }else if(e.type == SDL_KEYUP){
                             
                         }
                     }
@@ -201,7 +203,6 @@ int main(int argc, char* args[]){
                     char *cTitle = new char[title.size() + 1];
                     title.copy(cTitle, title.size() + 1);
                     cTitle[title.size()] = '\0';
-
 
                     SDL_SetWindowTitle(gWindow, cTitle);
 

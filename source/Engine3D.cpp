@@ -19,23 +19,16 @@ auto tp2 = std::chrono::system_clock::now();
 mesh cubeMesh;
 
 vec3d vCamera;
+vec3d vLookDirection;
 
 matrix4x4 projectionMatrix;
 matrix4x4 rotationMatrixX, rotationMatrixZ;
 matrix4x4 translationMatrix;
 matrix4x4 worldMatrix;
+matrix4x4 cameraMatrix;
+matrix4x4 viewMatrix;
 
 float fTheta;
-
-void MultiplyMatrixVector(vec3d &input, vec3d &output, matrix4x4 &matrix){
-    output.x = input.x * matrix.m[0][0] + input.y * matrix.m[1][0] + input.z * matrix.m[2][0] + matrix.m[3][0];
-    output.y = input.x * matrix.m[0][1] + input.y * matrix.m[1][1] + input.z * matrix.m[2][1] + matrix.m[3][1];
-    output.z = input.x * matrix.m[0][2] + input.y * matrix.m[1][2] + input.z * matrix.m[2][2] + matrix.m[3][2];
-    float w = input.x * matrix.m[0][3] + input.y * matrix.m[1][3] + input.z * matrix.m[2][3] + matrix.m[3][3];
-    if(w != 0.0f){
-        output /= w;
-    }
-}
 
 vec3d GetColor(float &dot){
     vec3d color = {dot * 255.0f, dot * 255.0f, dot * 255.0f};
@@ -43,7 +36,7 @@ vec3d GetColor(float &dot){
 }
 
 bool setup(){
-    cubeMesh.LoadFromObjectFile("./models/ship.obj");
+    cubeMesh.LoadFromObjectFile("./models/axis.obj");
 
     //Projection Matrix
     float fNear = 0.1f; 
@@ -63,7 +56,7 @@ void update(){
     tp1 = tp2;
     float fElapsedTime = elapsedTime.count();
 
-    fTheta += 1.0f * fElapsedTime;
+    //fTheta += 1.0f * fElapsedTime;
 
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
@@ -77,14 +70,22 @@ void update(){
     worldMatrix = rotationMatrixZ * rotationMatrixX;
     worldMatrix = worldMatrix * translationMatrix;
 
+    vLookDirection = {0, 0, 1};
+    vec3d vUp = {0, 1, 0};
+    vec3d vTarget = vCamera + vLookDirection;
+
+    cameraMatrix.makePointAt(vCamera, vTarget, vUp);
+    viewMatrix.makeQuickInverse(cameraMatrix);
+
+
     std::vector<triangle> vecTrianglesToRaster;
 
     for(auto tri : cubeMesh.triangles){
-        triangle triProjected, triTransformed;
+        triangle triProjected, triTransformed, triViewed;;
 
-        triTransformed.points[0] = tri.points[0] * worldMatrix;
-        triTransformed.points[1] = tri.points[1] * worldMatrix;
-        triTransformed.points[2] = tri.points[2] * worldMatrix;
+        triTransformed.points[0] = worldMatrix * tri.points[0];
+        triTransformed.points[1] = worldMatrix * tri.points[1];
+        triTransformed.points[2] = worldMatrix * tri.points[2];
 
         vec3d normal, line1, line2;
 
@@ -105,9 +106,13 @@ void update(){
 
             triProjected.color = GetColor(dot);
 
-            triProjected.points[0] = triTransformed.points[0] * projectionMatrix;
-            triProjected.points[1] = triTransformed.points[1] * projectionMatrix;
-            triProjected.points[2] = triTransformed.points[2] * projectionMatrix;
+            triViewed.points[0] = viewMatrix * triTransformed.points[0];
+            triViewed.points[1] = viewMatrix * triTransformed.points[1];
+            triViewed.points[2] = viewMatrix * triTransformed.points[2];
+
+            triProjected.points[0] = projectionMatrix * triViewed.points[0];
+            triProjected.points[1] = projectionMatrix * triViewed.points[1];
+            triProjected.points[2] = projectionMatrix * triViewed.points[2];
 
             triProjected.points[0] /= triProjected.points[0].w;
             triProjected.points[1] /= triProjected.points[1].w;
