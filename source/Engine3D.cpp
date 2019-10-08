@@ -35,6 +35,38 @@ vec3d GetColor(float &dot){
     return color;
 }
 
+bool up, down, left, right = false;
+
+void onKeyDown(SDL_Keycode key){
+    if(key == SDLK_UP){
+        up = true;
+    }
+    if(key == SDLK_DOWN){
+        down = true;
+    }
+    if(key == SDLK_LEFT){
+        left = true;
+    }
+    if(key == SDLK_RIGHT){
+        right = true;
+    }
+}
+
+void onKeyUp(SDL_Keycode key){
+    if(key == SDLK_UP){
+        up = false;
+    }
+    if(key == SDLK_DOWN){
+        down = false;
+    }
+    if(key == SDLK_LEFT){
+        left = false;
+    }
+    if(key == SDLK_RIGHT){
+        right = false;
+    }
+}
+
 bool setup(){
     cubeMesh.LoadFromObjectFile("./models/axis.obj");
 
@@ -51,6 +83,12 @@ bool setup(){
 }
 
 void update(){
+    if(up)
+        vCamera.y += 8.0f;
+    
+    if(down)
+        vCamera.y -= 8.0f;
+
     tp2 = std::chrono::system_clock::now();
     std::chrono::duration<float> elapsedTime = tp2 - tp1;
     tp1 = tp2;
@@ -140,8 +178,6 @@ void update(){
 
         for(auto &triProjected : vecTrianglesToRaster){
             drawTriangle(triProjected, triProjected.color);
-            //std::cout << "X: " << triProjected.points[0].x << " Y: " << triProjected.points[0].y << " Z: " << triProjected.points[0].z << "\n";
-            
         }
         
     }

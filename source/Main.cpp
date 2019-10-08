@@ -180,17 +180,20 @@ int main(int argc, char* args[]){
 
                 LTimer fpsTimer;
 
+                LTimer capTimer;
+
                 int countedFrames = 0;
                 fpsTimer.start();
 
                 while(!quit){
+                    capTimer.start();
                     while(SDL_PollEvent(&e) != 0){
                         if(e.type == SDL_QUIT){
                             quit = true;
                         }else if(e.type == SDL_KEYDOWN){
-                            std::cout << e.key.keysym.sym << "\n";
+                            onKeyDown(e.key.keysym.sym);
                         }else if(e.type == SDL_KEYUP){
-                            
+                            onKeyUp(e.key.keysym.sym);
                         }
                     }
 
@@ -208,6 +211,12 @@ int main(int argc, char* args[]){
 
                     update();
                     countedFrames++;
+
+                    int frameTicks = capTimer.getTicks();
+                    if( frameTicks < constants::SCREEN_TICK_PER_FRAME )
+                    {
+                        SDL_Delay( constants::SCREEN_TICK_PER_FRAME - frameTicks );
+                    }
                 }
             }
         }
