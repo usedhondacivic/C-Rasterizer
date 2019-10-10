@@ -68,7 +68,7 @@ void onKeyUp(SDL_Keycode key){
 }
 
 bool setup(){
-    cubeMesh.LoadFromObjectFile("./models/axis.obj");
+    cubeMesh.LoadFromObjectFile("./models/ship.obj");
 
     //Projection Matrix
     float fNear = 0.1f; 
@@ -94,7 +94,7 @@ void update(){
     tp1 = tp2;
     float fElapsedTime = elapsedTime.count();
 
-    //fTheta += 1.0f * fElapsedTime;
+    fTheta += 1.0f * fElapsedTime;
 
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
@@ -119,7 +119,7 @@ void update(){
     std::vector<triangle> vecTrianglesToRaster;
 
     for(auto tri : cubeMesh.triangles){
-        triangle triProjected, triTransformed, triViewed;;
+        triangle triProjected, triTransformed, triViewed;
 
         triTransformed.points[0] = worldMatrix * tri.points[0];
         triTransformed.points[1] = worldMatrix * tri.points[1];
