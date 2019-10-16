@@ -83,7 +83,7 @@ bool setup(){
 }
 
 void update(){
-    /*if(up)
+    if(up)
         vCamera.y += 8.0f;
     
     if(down)
@@ -177,18 +177,16 @@ void update(){
         });
 
         for(auto &triProjected : vecTrianglesToRaster){
-            drawTriangle(triProjected, triProjected.color);
+            fillTriangle(triProjected, triProjected.color, true);
         }
         
-    }*/
-    for(int i = 0; i < 140; i++){
+    }
+    /*for(int i = 0; i < 1000; i++){
         vec3d one = {0, 100, 200};
         vec3d two = {200, 350, 700};
         vec3d three = {150, 70, 1000};
         triangle test = {one, two, three};
         vec3d color = {255, 255, 255};
-        drawTriangle(test, color);
-    }
-
-    SDL_RenderPresent(gRenderer);
+        fillTriangle(test, color);
+    }*/
 }
