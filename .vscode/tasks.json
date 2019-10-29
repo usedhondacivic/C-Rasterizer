@@ -14,6 +14,8 @@
                 "-L../mingw_dev_lib/lib",
                 "-L./binaries",
                 "-lmingw32",
+                "-lglew32",
+                "-lglfw3dll",
                 "-o",
                 "binaries/Main",
             ],
