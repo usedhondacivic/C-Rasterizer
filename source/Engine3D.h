@@ -293,5 +293,5 @@ bool setup();
 
 void update();
 
-void onKeyDown(SDL_Keycode key);
-void onKeyUp(SDL_Keycode key);
+void onKeyDown();
+void onKeyUp();

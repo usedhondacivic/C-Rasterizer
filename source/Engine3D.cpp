@@ -1,12 +1,8 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <math.h>
 #include <chrono>
-
-#include <SDL2/SDL2_gfxPrimitives.h>
 
 #include "Engine3D.h"
 #include "Main.h"
@@ -37,34 +33,12 @@ vec3d GetColor(float &dot){
 
 bool up, down, left, right = false;
 
-void onKeyDown(SDL_Keycode key){
-    if(key == SDLK_UP){
-        up = true;
-    }
-    if(key == SDLK_DOWN){
-        down = true;
-    }
-    if(key == SDLK_LEFT){
-        left = true;
-    }
-    if(key == SDLK_RIGHT){
-        right = true;
-    }
+void onKeyDown(){
+    
 }
 
-void onKeyUp(SDL_Keycode key){
-    if(key == SDLK_UP){
-        up = false;
-    }
-    if(key == SDLK_DOWN){
-        down = false;
-    }
-    if(key == SDLK_LEFT){
-        left = false;
-    }
-    if(key == SDLK_RIGHT){
-        right = false;
-    }
+void onKeyUp(){
+    
 }
 
 bool setup(){
@@ -96,9 +70,6 @@ void update(){
 
     fTheta += 1.0f * fElapsedTime;
 
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(gRenderer);
-
     rotationMatrixZ.makeRotationZ(fTheta);
     rotationMatrixX.makeRotationX(fTheta);
 
@@ -114,7 +85,6 @@ void update(){
 
     cameraMatrix.makePointAt(vCamera, vTarget, vUp);
     viewMatrix.makeQuickInverse(cameraMatrix);
-
 
     std::vector<triangle> vecTrianglesToRaster;
 
