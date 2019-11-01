@@ -5,10 +5,11 @@
 #include <GLFW/glfw3.h>
 
 #include "Constants.h"
+#include "Graphics.h"
 
 int main(int argc, char* args[]){
     glewExperimental = true;
-    if( !glfwInit() )
+    if( glfwInit() != GLFW_TRUE)
     {
         std::cout << "Failed to initialize GLFW!\n";
         return -1;
@@ -22,7 +23,7 @@ int main(int argc, char* args[]){
 
     GLFWwindow *window;
     window = glfwCreateWindow( constants::SCREEN_WIDTH, constants::SCREEN_HEIGHT, "Rasterizer", NULL, NULL);
-    if( window == NULL ){
+    if( window == nullptr ){
         std::cout << "Failed to open GLFW window.\n";
         glfwTerminate();
         return -1;
@@ -38,7 +39,8 @@ int main(int argc, char* args[]){
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
     do{
-        glClear( GL_COLOR_BUFFER_BIT );
+       glClear( GL_COLOR_BUFFER_BIT );
+
 
 
         glfwSwapBuffers(window);

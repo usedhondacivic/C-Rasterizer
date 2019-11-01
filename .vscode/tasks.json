@@ -15,6 +15,8 @@
                 "-L./binaries",
                 "-lmingw32",
                 "-lglew32",
+                "-lopengl32",
+                "-lglu32",
                 "-lglfw3dll",
                 "-o",
                 "binaries/Main",
