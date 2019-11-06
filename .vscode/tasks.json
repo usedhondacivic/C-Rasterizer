@@ -7,9 +7,10 @@
             "command": "g++",
             "args": [
                 "-g",
-                "source/Main.cpp",
-                "source/Engine3D.cpp",
-                "source/Graphics.cpp",
+                "source/Engine/Main.cpp",
+                "source/Engine/Engine3D.cpp",
+                "source/Engine/Graphics.cpp",
+                "source/OpenGL/LoadShader.cpp",
                 "-I../mingw_dev_lib/include",
                 "-L../mingw_dev_lib/lib",
                 "-L./binaries",
